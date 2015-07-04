@@ -203,7 +203,12 @@ module Specinfra
     end
 
     def self.get_default_gateway(attr)
-      cmd = Specinfra.command.get(:get_routing_table_entry, 'default')
+      case attr
+        when :ipv6_gateway, :ipv6_interface 
+          cmd = Specinfra.command.get(:get_routing_table_entry6, 'default')
+        else 
+          cmd = Specinfra.command.get(:get_routing_table_entry, 'default')
+      end 
       ret = Specinfra.backend.run_command(cmd)
       return false if ret.failure?
 
@@ -211,17 +216,19 @@ module Specinfra
 
       if os[:family] == 'openbsd'
         match = ret.stdout.match(/^(\S+)\s+(\S+).*?(\S+[0-9]+)(\s*)$/)
-        if attr == :gateway
-          $2
-        elsif attr == :interface
-          $3
+        case attr 
+          when :gateway, :ipv4_gateway, :ipv6_gateway
+            $2
+          when :interface, :ipv4_interface, :ipv6_interface
+            $3
         end
       else
         ret.stdout =~ /^(\S+)(?: via (\S+))? dev (\S+).+\n(?:default via (\S+))?/
-        if attr == :gateway
-          $2 ? $2 : $4
-        elsif attr == :interface
-          $3
+        case attr 
+          when :gateway, :ipv4_gateway, :ipv6_gateway
+            $2 ? $2 : $4
+          when :interface, :ipv4_interface, :ipv6_interface
+            $3
         end
       end
     end
