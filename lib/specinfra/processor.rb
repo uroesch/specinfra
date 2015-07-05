@@ -213,23 +213,12 @@ module Specinfra
       return false if ret.failure?
 
       ret.stdout.gsub!(/\r\n/, "\n")
-
-      if os[:family] == 'openbsd'
-        match = ret.stdout.match(/^(\S+)\s+(\S+).*?(\S+[0-9]+)(\s*)$/)
-        case attr 
-          when :gateway, :ipv4_gateway, :ipv6_gateway
-            $2
-          when :interface, :ipv4_interface, :ipv6_interface
-            $3
-        end
-      else
-        ret.stdout =~ /^(\S+)(?: via (\S+))? dev (\S+).+\n(?:default via (\S+))?/
-        case attr 
-          when :gateway, :ipv4_gateway, :ipv6_gateway
-            $2 ? $2 : $4
-          when :interface, :ipv4_interface, :ipv6_interface
-            $3
-        end
+      ret.stdout =~ /^(\S+)(?: via (\S+))? dev (\S+).+\n(?:default via (\S+))?/
+      case attr 
+        when :gateway, :ipv4_gateway, :ipv6_gateway
+          $2 ? $2 : $4
+        when :interface, :ipv4_interface, :ipv6_interface
+          $3
       end
     end
   end
