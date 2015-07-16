@@ -99,7 +99,7 @@ module Specinfra
           actual_attr[name.to_sym] = val
         end
       end
-
+  
       if ! expected_attr[:options].nil?
         expected_attr.merge!(expected_attr[:options])
         expected_attr.delete(:options)
@@ -155,9 +155,9 @@ module Specinfra
       cmd = Specinfra.command.get(:get_routing_table_entry, expected_attr[:destination])
       ret = Specinfra.backend.run_command(cmd)
       return false if ret.failure?
-
+  
       ret.stdout.gsub!(/\r\n/, "\n")
-
+  
       if os[:family] == 'openbsd'
         match = ret.stdout.match(/^(\S+)\s+(\S+).*?(\S+[0-9]+)(\s*)$/)
         actual_attr = {
@@ -177,7 +177,7 @@ module Specinfra
             else
               next unless expected_attr[:interface] == groups[5]
             end
-
+  
             actual_attr = {
               :destination => destination,
               :gateway => groups[4],
@@ -193,15 +193,15 @@ module Specinfra
             :interface   => expected_attr[:interface] ? groups[2] : nil
           }
         end
-
+  
       end
-
+  
       expected_attr.each do |key, val|
         return false if actual_attr[key] != val
       end
       true
     end
-
+  
     def self.get_default_gateway(attr)
       case attr
         when :ipv6_gateway, :ipv6_interface 
@@ -211,15 +211,17 @@ module Specinfra
       end 
       ret = Specinfra.backend.run_command(cmd)
       return false if ret.failure?
-
+  
       ret.stdout.gsub!(/\r\n/, "\n")
-      ret.stdout =~ /^(\S+)(?: via (\S+))? dev (\S+).+\n(?:default via (\S+))?/
+      #ret.stdout =~ /^(\S+)(?: via (\S+))? dev (\S+).+\n(?:default via (\S+))?/
       case attr 
         when :gateway, :ipv4_gateway, :ipv6_gateway
-          $2 ? $2 : $4
+          #$2 ? $2 : $4
+          Specinfra.parser.get(:parse_default_gateway_gateway)
         when :interface, :ipv4_interface, :ipv6_interface
-          $3
+          #$3
+          Specinfra.parser.get(:get_default_gateway_interface) 
       end
     end
   end
-end
+end 

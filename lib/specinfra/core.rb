@@ -8,6 +8,8 @@ require 'specinfra/backend'
 require 'specinfra/configuration'
 require 'specinfra/runner'
 require 'specinfra/processor'
+require 'specinfra/parser'
+require 'specinfra/parser_factory'
 
 module Specinfra
   class << self

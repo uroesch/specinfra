@@ -11,6 +11,10 @@ module Specinfra
       Specinfra::CommandFactory.instance
     end
 
+    def parser
+      Specinfra::ParserFactory.instance
+    end
+
     def backend
       type = Specinfra.configuration.backend
       if type.nil?
